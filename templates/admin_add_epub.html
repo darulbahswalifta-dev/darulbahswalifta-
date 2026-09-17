@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add EPUB</title>
+</head>
+<body style="font-family:Arial; padding:30px;">
+
+<h1>📚 Add EPUB</h1>
+
+<a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+
+{% if error %}
+<p style="color:red; font-size:18px;">{{ error }}</p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data" style="margin-top:30px;">
+
+    <label>Title</label><br>
+    <input type="text" name="title" required
+           style="width:100%; padding:12px; margin:8px 0 15px;"><br>
+
+    <label>Author</label><br>
+    <input type="text" name="author"
+           style="width:100%; padding:12px; margin:8px 0 15px;"><br>
+
+    <label>Description</label><br>
+    <textarea name="description" rows="5"
+              style="width:100%; padding:12px; margin:8px 0 15px;"></textarea><br>
+
+    <label>Choose EPUB</label><br>
+    <input type="file" name="file" accept=".epub,application/epub+zip" required
+           style="margin:10px 0 20px;"><br>
+
+    <button type="submit"
+            style="background:#087f3e; color:white; border:0;
+                   padding:14px 25px; border-radius:8px; font-size:17px;">
+        📤 Upload EPUB
+    </button>
+
+</form>
+
+</body>
+</html>

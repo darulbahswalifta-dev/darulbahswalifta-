@@ -1,0 +1,89 @@
+<!DOCTYPE html> <html lang="en"> <head> 
+    <meta charset="UTF-8"> <meta 
+    name="viewport" 
+    content="width=device-width, 
+    initial-scale=1.0"> <title>Islamic 
+    Videos - Darul Bahs Wal Ifta</title> 
+    <style>
+        body { margin: 0; font-family: 
+            Arial, sans-serif; 
+            background: #f7fff9; color: 
+            #222;
+        }
+        header { background: #087f23; 
+            color: white; text-align: 
+            center; padding: 25px 15px;
+        }
+        header h1 { margin: 0; font-size: 
+            30px;
+        }
+        header h2 { margin: 8px 0 0; 
+            font-size: 20px;
+        }
+        .container { max-width: 700px; 
+            margin: auto; padding: 20px;
+        }
+        .container > h2 { color: #087f23; 
+            text-align: center; 
+            font-size: 28px;
+        }
+        .video-card { background: white; 
+            border-radius: 15px; padding: 
+            18px; margin-top: 20px; 
+            box-shadow: 0 3px 12px 
+            rgba(0,0,0,0.15);
+        }
+        .video-card h3 { color: #087f23; 
+            margin-top: 0;
+        }
+        video { width: 100%; 
+            border-radius: 10px; 
+            margin-top: 10px;
+        }
+        .download { display: 
+            inline-block; margin-top: 
+            15px; padding: 12px 20px; 
+            background: #d4af37; color: 
+            white; text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: bold;
+        }
+        .back { display: inline-block; 
+            margin-top: 25px; color: 
+            #087f23;
+            font-weight: bold;
+        }
+        footer { text-align: center; 
+            padding: 25px; margin-top: 
+            30px; background: #087f23; 
+            color: white;
+        }
+    </style> </head> <body> <header> 
+    <h1>دار البحث والإفتاء</h1> <h2>Darul 
+    Bahs Wal Ifta</h2>
+</header> <div class="container"> <h2>🎬 
+    Islamic Videos</h2> <div 
+    class="video-card">
+        <h3>Islamic Lecture 1</h3> <p> 
+            Watch beneficial Islamic 
+            lectures and scholarly 
+            teachings.
+        </p> <p dir="rtl"> نشر العلم 
+            الصحيح
+        </p> <video controls 
+        preload="metadata">
+            <source 
+            src="/static/videos/islamic_lecture_1.mp4" 
+            type="video/mp4"> Your 
+            browser does not support 
+            video playback.
+        </video> <a class="download" 
+           href="/download-video/islamic_lecture_1.mp4">
+            ⬇ Download Video </a> </div> 
+    <a class="back" href="/">← Back to 
+    Home</a>
+</div> <footer> © 2026 Darul Bahs Wal 
+    Ifta
+</footer> </body>
+</html>
+

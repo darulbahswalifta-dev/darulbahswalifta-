@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Islamic Audios - Darul Bahs Wal Ifta</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef9f3;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #087f45, #0b9b55);
+            color: white;
+            text-align: center;
+            padding: 30px 15px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            direction: rtl;
+        }
+
+        header h2 {
+            margin: 10px 0 0;
+            font-size: 22px;
+            font-weight: normal;
+        }
+
+        .gold-line {
+            width: 80px;
+            height: 4px;
+            background: #d4af37;
+            margin: 15px auto 0;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 25px auto;
+            padding: 0 16px;
+        }
+
+        .title {
+            text-align: center;
+            color: #087f45;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .audio-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            border-top: 5px solid #d4af37;
+        }
+
+        .audio-icon {
+            font-size: 45px;
+            text-align: center;
+        }
+
+        .audio-card h3 {
+            color: #087f45;
+            text-align: center;
+            font-size: 23px;
+            margin: 10px 0;
+        }
+
+        .audio-card p {
+            text-align: center;
+            line-height: 1.6;
+            font-size: 17px;
+        }
+
+        .arabic {
+            direction: rtl;
+            font-size: 20px;
+            color: #666;
+        }
+
+        .empty {
+            background: #f8fbf9;
+            border: 2px dashed #d4af37;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .empty strong {
+            display: block;
+            color: #087f45;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #d4af37;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 18px;
+            margin: 25px 0;
+        }
+
+        .back:hover {
+            background: #b99520;
+        }
+
+        footer {
+            background: #075c34;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 27px;
+            }
+
+            header h2 {
+                font-size: 20px;
+            }
+
+            .title {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>دار البحث والإفتاء</h1>
+    <h2>Darul Bahs Wal Ifta</h2>
+    <div class="gold-line"></div>
+</header>
+
+<div class="container">
+
+    <h2 class="title">🎧 Islamic Audios</h2>
+
+    <div class="audio-card">
+
+        <div class="audio-icon">🎧</div>
+
+        <h3>Islamic Lessons</h3>
+
+        <p>
+            Listen to beneficial Islamic lessons,
+            lectures and scholarly teachings.
+        </p>
+
+        <p class="arabic">
+            استمع إلى الدروس والمحاضرات والتعاليم الإسلامية النافعة
+        </p>
+
+        <div class="audio-list">
+
+    <div class="audio-card">
+        <div class="audio-icon">🎧</div>
+        <h3>ASALIN MAULIDI (1)</h3>
+        <p>Part 1</p>
+        <audio controls preload="metadata">
+            <source src="{{ url_for('static', filename='audio/001 ASALIN MAULIDI (1)_BRZA5.mp3') }}" type="audio/mpeg">
+            Your browser does not support audio playback.
+        </audio>
+    </div>
+
+    <div class="audio-card">
+        <div class="audio-icon">🎧</div>
+        <h3>ASALIN MAULIDI (2)</h3>
+        <p>Part 2</p>
+        <audio controls preload="metadata">
+            <source src="{{ url_for('static', filename='audio/002 ASALIN MAULIDI (2)_LPmP7.mp3') }}" type="audio/mpeg">
+            Your browser does not support audio playback.
+        </audio>
+    </div>
+
+    <div class="audio-card">
+        <div class="audio-icon">🎧</div>
+        <h3>ASALIN MAULIDI (3)</h3>
+        <p>Part 3</p>
+        <audio controls preload="metadata">
+            <source src="{{ url_for('static', filename='audio/003 ASALIN MAULIDI (3)_S29tY.mp3') }}" type="audio/mpeg">
+            Your browser does not support audio playback.
+        </audio>
+    </div>
+
+</div>
+
+    </div>
+
+    <a class="back" href="/">← Back to Home</a>
+
+</div>
+
+<footer>
+    © 2026 Darul Bahs Wal Ifta
+    <br>
+    <span>نشر العلم الصحيح</span>
+</footer>
+
+
+<style>
+.download-audio-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 22px;
+    background: #d4af37;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+.download-audio-btn:hover {
+    background: #b8941f;
+}
+</style>
+
+<script>
+document.querySelectorAll("audio").forEach(function(audio) {
+    const source = audio.querySelector("source");
+
+    if (source) {
+        const button = document.createElement("button");
+
+        const file = decodeURIComponent(
+            new URL(source.src).pathname.split("/").pop()
+        );
+
+        button.className = "download-audio-btn";
+        button.textContent = "↓ Download Audio";
+
+        button.addEventListener("click", async function() {
+            try {
+                button.disabled = true;
+                button.textContent = "⏳ Downloading... 0%";
+
+                const response = await fetch(
+                    "/download-audio/" + encodeURIComponent(file)
+                );
+
+                if (!response.ok) {
+                    throw new Error("Download failed");
+                }
+
+                const total = Number(response.headers.get("Content-Length"));
+                const reader = response.body.getReader();
+
+                let received = 0;
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+
+                    if (done) break;
+
+                    chunks.push(value);
+                    received += value.length;
+
+                    if (total) {
+                        const percent = Math.round((received / total) * 100);
+                        button.textContent =
+                            "⏳ Downloading... " + percent + "%";
+                    } else {
+                        button.textContent =
+                            "⏳ Downloading...";
+                    }
+                }
+
+                const blob = new Blob(chunks, {
+                    type: "audio/mpeg"
+                });
+
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.createElement("a");
+
+                downloadLink.href = url;
+                downloadLink.download = file;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                downloadLink.remove();
+
+                URL.revokeObjectURL(url);
+
+                button.textContent = "✅ Downloaded";
+                
+                setTimeout(function() {
+                    button.disabled = false;
+                    button.textContent = "↓ Download Audio";
+                }, 3000);
+
+            } catch (error) {
+                console.error(error);
+
+                button.disabled = false;
+                button.textContent = "❌ Download Failed";
+
+                setTimeout(function() {
+                    button.textContent = "↓ Download Audio";
+                }, 3000);
+            }
+        });
+
+        audio.parentElement.appendChild(button);
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Content</title>
+</head>
+<body style="font-family:Arial; padding:20px;">
+
+<h1>✏️ Edit Content</h1>
+
+<p>
+    <a href="/admin-manage-content">← Back to Manage Content</a>
+</p>
+
+{% if error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+
+    <label>Title *</label><br>
+    <input type="text" name="title" value="{{ item['title'] }}" required
+           style="width:100%; padding:12px; margin:8px 0 15px;"><br>
+
+    <label>Author</label><br>
+    <input type="text" name="author" value="{{ item['author'] or '' }}"
+           style="width:100%; padding:12px; margin:8px 0 15px;"><br>
+
+    <label>Description</label><br>
+    <textarea name="description" rows="6"
+              style="width:100%; padding:12px; margin:8px 0 20px;">{{ item['description'] or '' }}</textarea>
+
+    <button type="submit"
+            style="background:#087f3e; color:white; border:0; padding:13px 25px; border-radius:8px; font-size:17px;">
+        💾 Save Changes
+    </button>
+
+</form>
+
+</body>
+</html>

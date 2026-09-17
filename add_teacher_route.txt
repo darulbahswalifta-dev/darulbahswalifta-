@@ -1,0 +1,45 @@
+@app.route("/admin-add-teacher", methods=["GET", "POST"])
+def admin_add_teacher():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        specialization = request.form.get("specialization", "").strip()
+        bio = request.form.get("bio", "").strip()
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        if not name or not specialization or not username or not password:
+            return render_template(
+                "admin_add_teacher.html",
+                error="Please fill all required fields."
+            )
+
+        password_hash = generate_password_hash(password)
+
+        conn = get_db()
+
+        existing = conn.execute(
+            "SELECT id FROM teachers WHERE username = ?",
+            (username,)
+        ).fetchone()
+
+        if existing:
+            conn.close()
+            return render_template(
+                "admin_add_teacher.html",
+                error="Username already exists."
+            )
+
+        conn.execute(
+            "INSERT INTO teachers (name, specialization, bio, username, password_hash) VALUES (?, ?, ?, ?, ?)",
+            (name, specialization, bio, username, password_hash)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("get_teachers"))
+
+    return render_template("admin_add_teacher.html")

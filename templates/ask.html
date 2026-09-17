@@ -1,0 +1,116 @@
+<!DOCTYPE html> <html lang="en"> <head> 
+<meta charset="UTF-8"> <meta 
+name="viewport" 
+content="width=device-width, 
+initial-scale=1.0"> <title>Ask a Question 
+- Darul Bahs Wal Ifta</title> <style> 
+body {
+    margin: 0; font-family: Arial, 
+    sans-serif; background: #f3fff6; 
+    color: #222;
+}
+header { background: #087f3e; color: 
+    white; text-align: center; padding: 
+    25px 15px;
+}
+header h1 { margin: 0; font-size: 30px;
+}
+header h2 { margin: 10px 0 0; font-size: 
+    22px;
+}
+.container { max-width: 600px; margin: 
+    30px auto; padding: 25px;
+}
+.card { background: white; padding: 25px; 
+    border-radius: 15px; box-shadow: 0 
+    4px 15px rgba(0,0,0,0.10);
+}
+h3 { text-align: center; color: #087f3e; 
+    font-size: 24px;
+}
+label { display: block; margin-top: 18px; 
+    margin-bottom: 7px; font-weight: 
+    bold;
+}
+input, textarea { width: 100%; 
+    box-sizing: border-box; padding: 
+    13px; border: 1px solid #ccc; 
+    border-radius: 8px; font-size: 16px;
+}
+textarea { min-height: 150px; resize: 
+    vertical;
+}
+button { width: 100%; margin-top: 20px; 
+    padding: 14px; background: #087f3e; 
+    color: white; border: none; 
+    border-radius: 8px; font-size: 17px; 
+    font-weight: bold;
+}
+button:active { transform: scale(0.98);
+}
+.back { display: block; text-align: 
+    center; margin-top: 20px; color: 
+    #087f3e;
+    text-decoration: none; font-weight: 
+    bold;
+}
+</style> </head> <body> <header> <h1>دار 
+    البحث والإفتاء</h1> <h2>Darul Bahs 
+    Wal Ifta</h2>
+</header> <div class="container"> <div 
+    class="card">
+        <h3>Ask a Question</h3> <form 
+        id="questionForm">
+            <label>Your Name</label> 
+            <input
+                type="text" id="name" 
+                placeholder="Enter your 
+                name" required
+            >
+            <label>Your Question</label> 
+            <textarea
+                id="question" 
+                placeholder="Write your 
+                Islamic question here..." 
+                required
+            ></textarea>
+            <button type="submit"> 📤 
+                Submit Question
+            </button> </form> <a 
+        class="back" href="/">
+            ← Back to Home </a> </div> 
+<script>
+document.getElementById("questionForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const question = document.getElementById("question").value.trim();
+
+    try {
+        const response = await fetch("/questions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name,
+                question: question
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("An karɓi tambayarka cikin nasara!");
+            document.getElementById("questionForm").reset();
+        } else {
+            alert(data.error || "An samu matsala.");
+        }
+    } catch (error) {
+        alert("An samu matsalar haɗi da server.");
+        console.error(error);
+    }
+});
+</script>
+</body>
+</html>

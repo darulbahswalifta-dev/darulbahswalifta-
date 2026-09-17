@@ -1,0 +1,107 @@
+<!DOCTYPE html> <html lang="en"> <head> 
+    <meta charset="UTF-8"> <meta 
+    name="viewport" 
+    content="width=device-width, 
+    initial-scale=1.0"> <title>Islamic 
+    Research - Darul Bahs Wal 
+    Ifta</title> <style>
+        body { margin: 0; font-family: 
+            Arial, sans-serif; 
+            background: #f5fff8; color: 
+            #222;
+        }
+        header { background: #087f3d; 
+            color: white; padding: 22px 
+            15px; text-align: center;
+        }
+        header h1 { margin: 0; font-size: 
+            28px;
+        }
+        header h2 { margin: 8px 0 0; 
+            font-size: 20px;
+        }
+        .container { padding: 25px 15px; 
+            max-width: 700px; margin: 
+            auto;
+        }
+        .title { text-align: center; 
+            color: #087f3d; font-size: 
+            30px; margin-bottom: 25px;
+        }
+        .research-card { background: 
+            white; border-radius: 15px; 
+            padding: 20px; margin-bottom: 
+            20px; box-shadow: 0 3px 10px 
+            rgba(0,0,0,0.10); 
+            border-left: 5px solid 
+            #087f3d;
+        }
+        .question { font-size: 19px; 
+            font-weight: bold; 
+            line-height: 1.6; 
+            margin-bottom: 10px;
+        }
+        .name { color: #666; font-size: 
+            15px; margin-bottom: 15px;
+        }
+        .answer-title { color: #087f3d; 
+            font-weight: bold; font-size: 
+            17px;
+        }
+        .answer { background: #f0fff5; 
+            padding: 15px; border-radius: 
+            10px; margin-top: 8px; 
+            line-height: 1.7;
+        }
+        .no-answer { color: #999; 
+            font-style: italic;
+        }
+        .back { display: block; 
+            text-align: center; 
+            background: #087f3d; color: 
+            white; text-decoration: none; 
+            padding: 14px; border-radius: 
+            10px; margin-top: 30px; 
+            font-size: 17px;
+        }
+        footer { text-align: center; 
+            background: #087f3d; color: 
+            white; padding: 18px; 
+            margin-top: 30px;
+        }
+    </style> </head> <body> <header> 
+    <h1>دار البحث والإفتاء</h1> <h2>Darul 
+    Bahs Wal Ifta</h2>
+</header> <div class="container"> <h1 
+    class="title">📖 Islamic 
+    Research</h1> {% for question in 
+    questions %} <div 
+    class="research-card">
+        <div class="question"> ❓ {{ 
+            question["question"] }}
+        </div> <div class="name"> 👤 
+            Asked by: {{ question["name"] 
+            }}
+        </div> {% if session.get("teacher_id") %}
+<form method="POST" action="{{ url_for('answer_question', question_id=question['id']) }}" class="answer-form">
+    <textarea name="answer" placeholder="Write your scholarly answer here..." required></textarea>
+    <button type="submit" class="btn">Submit Answer</button>
+</form>
+{% endif %}
+<div class="answer-title"> 
+            🕌 Scholarly Answer
+        </div> {% if question["answer"] 
+        %}
+            <div class="answer"> {{ 
+                question["answer"] }}
+            </div> {% else %} <div 
+            class="answer no-answer">
+                This question has not 
+                been answered yet.
+            </div> {% endif %} </div> {% 
+    endfor %} <a href="/" class="back">← 
+    Back to Home</a>
+</div> <footer> © 2026 Darul Bahs Wal 
+    Ifta
+</footer> </body>
+</html>

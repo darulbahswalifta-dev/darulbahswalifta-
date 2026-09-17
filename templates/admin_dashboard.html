@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Darul Bahs Wal Ifta</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#222}
+.header{background:#087a3d;color:white;padding:22px 18px;text-align:center;border-bottom:4px solid #d4af37}
+.header h1{margin:0;font-size:24px}
+.header p{margin:7px 0 0;font-size:14px}
+.container{width:94%;max-width:1100px;margin:25px auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
+.card{background:white;padding:22px;border-radius:15px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.08);border-top:4px solid #d4af37}
+.icon{font-size:30px}
+.number{font-size:30px;font-weight:bold;color:#087a3d;margin:8px 0}
+.label{color:#666}
+.section{background:white;margin-top:25px;padding:20px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.section h2{margin-top:0;color:#087a3d}
+.question{border-bottom:1px solid #eee;padding:15px 0}
+.question:last-child{border-bottom:0}
+.qtext{font-weight:bold}
+.answer{color:#555;margin-top:7px}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.nav a{background:#087a3d;color:white;text-decoration:none;padding:11px 16px;border-radius:9px}
+.nav a.logout{background:#9b1c1c}
+.empty{color:#888;text-align:center;padding:20px}
+.footer{text-align:center;margin:30px 0;color:#777;font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>دار البحث والإفتاء</h1>
+<p>Admin Dashboard — Darul Bahs Wal Ifta</p>
+</div>
+
+<div class="container">
+
+<div class="cards">
+<div class="card">
+<div class="icon">👨‍🏫</div>
+<div class="number">{{ teachers_count }}</div>
+<div class="label">Teachers / Scholars</div>
+</div>
+
+<div class="card">
+<div class="icon">❓</div>
+<div class="number">{{ questions_count }}</div>
+<div class="label">Questions</div>
+</div>
+
+<div class="card">
+<div class="icon">📚</div>
+<div class="number">{{ studies_count }}</div>
+<div class="label">Books / Studies</div>
+</div>
+</div>
+
+<div class="nav">
+<a href="{{ url_for("get_teachers") }}">Teachers</a>
+<a href="{{ url_for("get_questions") }}">Questions</a>
+<a href="{{ url_for("studies") }}">Studies</a>
+<a class="logout" href="{{ url_for("admin_logout") }}">Logout</a>
+</div>
+
+<div class="section">
+<h2>Recent Questions</h2>
+
+{% if recent_questions %}
+{% for q in recent_questions %}
+<div class="question">
+<div class="qtext">{{ q["question"] }}</div>
+{% if q["answer"] %}
+<div class="answer"><strong>Answer:</strong> {{ q["answer"] }}</div>
+{% else %}
+<div class="answer">Not answered yet.</div>
+{% endif %}
+</div>
+{% endfor %}
+{% else %}
+<div class="empty">No questions available yet.</div>
+{% endif %}
+
+</div>
+
+<div class="footer">
+Nashr al-Ilm al-Sahih — Darul Bahs Wal Ifta
+</div>
+
+</div>
+
+<hr>
+<h2>📤 Add Content</h2>
+
+<div style="display:flex; flex-wrap:wrap; gap:10px; margin:20px 0;">
+    <a href="/admin-add-teacher">
+        <button type="button">👨‍🏫 Add Teacher / Scholar</button>
+    </a>
+
+    <a href="/admin-add-pdf">
+        <button type="button">📚 Add PDF</button>
+    </a>
+
+    <a href="/admin-add-epub">
+        <button type="button">📖 Add EPUB</button>
+    </a>
+
+    <a href="/admin-add-audio">
+        <button type="button">🎧 Add Audio</button>
+    </a>
+
+    <a href="/admin-add-video">
+        <button type="button">🎥 Add Video</button>
+    </a>
+</div>
+
+
+<h2>📊 Content Library</h2>
+<div style="display:flex;flex-wrap:wrap;gap:12px;">
+  <div>📚 <strong>{{ pdf_count }}</strong><br>PDF</div>
+  <div>📖 <strong>{{ epub_count }}</strong><br>EPUB</div>
+  <div>🎧 <strong>{{ audio_count }}</strong><br>Audio</div>
+  <div>🎥 <strong>{{ video_count }}</strong><br>Video</div>
+</div>
+
+<div style="text-align:center;margin:25px 0;"><a href="/admin-manage-content" style="background:#087f3e;color:white;padding:14px 24px;border-radius:8px;text-decoration:none;font-size:18px;">🗂️ Manage Content</a></div>
+
+<div style="margin:15px 0;">
+<a href="{{ url_for('admin_add_epub') }}"
+style="display:inline-block;background:#087f3e;color:white;padding:14px 22px;border-radius:8px;text-decoration:none;font-size:17px;">
+📚 Add EPUB
+</a>
+</div>
+
+</body>
+</html>

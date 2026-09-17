@@ -1,0 +1,139 @@
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, send_from_directory
+from werkzeug.security import check_password_hash
+import sqlite3
+
+app = Flask(__name__)
+app.secret_key = "darul-bahs-wal-ifta-secret-2026"
+
+DATABASE = "darul_bahs.db"
+
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@app.route("/")
+def home():
+
+
+
+           return render_template("index.html")
+
+@app.route("/teachers", methods=["GET"])
+def get_teachers():
+    conn = get_db()
+    teachers = conn.execute("SELECT * FROM teachers").fetchall()
+    conn.close()
+    return render_template("teachers.html", teachers=[dict(teacher) for teacher in teachers])
+
+
+@app.route("/teachers", methods=["POST"])
+def add_teacher():
+    data = request.get_json() or {}
+
+    name = data.get("name")
+    specialization = data.get("specialization")
+    bio = data.get("bio")
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO teachers (name, specialization, bio) VALUES (?, ?, ?)",
+        (name, specialization, bio)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "An kara malami successfully!"}), 201
+
+
+@app.route("/questions", methods=["GET"])
+def get_questions():
+    conn = get_db()
+    rows = conn.execute("SELECT id, name, question, answer, teacher_id FROM questions ORDER BY id DESC").fetchall()
+    conn.close()
+    return render_template("questions.html", questions=[dict(row) for row in rows])
+
+@app.route("/questions", methods=["POST"])
+def add_question():
+    data = request.get_json() or {}
+    name = data.get("name")
+    question = data.get("question")
+    answer = data.get("answer", "")
+    teacher_id = data.get("teacher_id")
+    if not name or not question:
+        return jsonify({"error": "name da question suna da muhimmanci"}), 400
+    conn = get_db()
+    conn.execute("INSERT INTO questions (name, question, answer, teacher_id) VALUES (?, ?, ?, ?)", (name, question, answer, teacher_id))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "An karbi tambayar cikin nasara!"}), 201
+
+@app.route("/ask")
+def ask():
+         return render_template("ask.html")
+
+
+@app.route("/download-pdf")
+def download_pdf():
+    filename = request.args.get("file")
+    allowed = ["His ah principle in Islam.pdf", "Ethics_of_Islam.pdf", "book1.pdf"]
+    if filename not in allowed:
+        return "PDF ba a samu ba", 404
+    return send_from_directory("static/pdfs", filename, as_attachment=True)
+@app.route("/study1")
+def study1():
+    return render_template("study1.html")
+
+@app.route("/study2")
+def study2():
+    return render_template("study2.html")
+
+@app.route("/studies")
+def studies():
+    return render_template("studies.html")
+
+@app.route("/study3")
+def study3():
+    return render_template("study3.html")
+
+@app.route("/download/book1")
+def download_book1():
+    return send_from_directory("static/pdfs", "book1.pdf", as_attachment=True)
+
+@app.route("/downloads")
+def downloads():
+    return render_template("downloads.html")
+
+@app.route("/scholar-login", methods=["GET", "POST"])
+def scholar_login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        conn = get_db()
+        teacher = conn.execute("SELECT * FROM teachers WHERE username = ?", (username,)).fetchone()
+        conn.close()
+        if teacher and check_password_hash(teacher["password_hash"], password):
+            session["teacher_id"] = teacher["id"]
+            session["teacher_name"] = teacher["name"]
+            return redirect(url_for("scholar_dashboard"))
+        return render_template("scholar_login.html", error="Username ko password ba daidai ba")
+    return render_template("scholar_login.html")
+
+@app.route("/scholar-dashboard")
+def scholar_dashboard():
+    if "teacher_id" not in session:
+        return redirect(url_for("scholar_login"))
+    return render_template("scholar_dashboard.html", name=session.get("teacher_name"))
+
+
+
+@app.route("/scholar-logout")
+def scholar_logout():
+    session.pop("teacher_id", None)
+    session.pop("teacher_name", None)
+    return redirect(url_for("scholar_login"))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

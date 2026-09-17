@@ -1,0 +1,84 @@
+<!DOCTYPE html> <html lang="en"> <head> 
+    <meta charset="UTF-8"> <meta 
+    name="viewport" 
+    content="width=device-width, 
+    initial-scale=1.0"> <title>Scholar 
+    Login - Darul Bahs Wal Ifta'</title> 
+    <style>
+        body { margin: 0; font-family: 
+            Arial, sans-serif; 
+            background: 
+            linear-gradient(135deg, 
+            #006b3c, #ffffff);
+            min-height: 100vh; display: 
+            flex; align-items: center; 
+            justify-content: center;
+        }
+        .login-box { width: 90%; 
+            max-width: 400px; background: 
+            white; padding: 30px; 
+            border-radius: 18px; 
+            box-shadow: 0 8px 25px 
+            rgba(0,0,0,0.2); text-align: 
+            center;
+        }
+        .logo { font-size: 32px; color: 
+            #006b3c;
+            margin-bottom: 5px;
+        }
+        .arabic { font-size: 25px; color: 
+            #c9a227;
+            margin-bottom: 20px;
+        }
+        h2 { color: #006b3c; 
+            margin-bottom: 25px;
+        }
+        input { width: 100%; padding: 
+            14px; margin: 8px 0; 
+            box-sizing: border-box; 
+            border: 1px solid #ccc; 
+            border-radius: 10px; 
+            font-size: 16px;
+        }
+        button { width: 100%; padding: 
+            14px; margin-top: 15px; 
+            background: #006b3c; color: 
+            white; border: none; 
+            border-radius: 10px; 
+            font-size: 17px; cursor: 
+            pointer;
+        }
+        button:hover { background: 
+            #004d2c;
+        }
+        .error { color: #b00020; 
+            margin-bottom: 15px;
+        }
+        .footer { margin-top: 20px; 
+            font-size: 13px; color: #777;
+        }
+    </style> </head> <body> <div 
+class="login-box">
+    <div class="logo">Darul Bahs Wal 
+    Ifta'</div> <div class="arabic">
+        دار البحث والإفتاء </div> 
+    <h2>Scholar Login</h2> {% if error %}
+        <div class="error">{{ error 
+        }}</div>
+    {% endif %} <form method="POST"> 
+        <input
+            type="text" name="username" 
+            placeholder="Username" 
+            required
+        >
+        <input type="password" 
+            name="password" 
+            placeholder="Password" 
+            required
+        >
+        <button type="submit"> Login 
+        </button>
+    </form> <div class="footer"> نشر 
+        العلم الصحيح
+    </div> </div> </body>
+</html>

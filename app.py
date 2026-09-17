@@ -1,0 +1,524 @@
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, send_from_directory
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
+import sqlite3
+import os
+
+app = Flask(__name__)
+app.secret_key = os.environ["SECRET_KEY"]
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+
+
+DATABASE = "darul_bahs.db"
+
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@app.route("/")
+def home():
+
+
+
+           return render_template("index.html")
+
+@app.route("/teachers", methods=["GET"])
+def get_teachers():
+    conn = get_db()
+    teachers = conn.execute("SELECT * FROM teachers").fetchall()
+    conn.close()
+    return render_template("teachers.html", teachers=[dict(teacher) for teacher in teachers])
+
+
+@app.route("/teachers", methods=["POST"])
+def add_teacher():
+    data = request.get_json() or {}
+
+    name = data.get("name")
+    specialization = data.get("specialization")
+    bio = data.get("bio")
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO teachers (name, specialization, bio) VALUES (?, ?, ?)",
+        (name, specialization, bio)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "An kara malami successfully!"}), 201
+
+
+@app.route("/questions", methods=["GET"])
+def get_questions():
+    conn = get_db()
+    rows = conn.execute("SELECT id, name, question, answer, teacher_id FROM questions ORDER BY id DESC").fetchall()
+    conn.close()
+    return render_template("questions.html", questions=[dict(row) for row in rows])
+
+@app.route("/questions", methods=["POST"])
+def add_question():
+    data = request.get_json() or {}
+    name = data.get("name")
+    question = data.get("question")
+    answer = data.get("answer", "")
+    teacher_id = data.get("teacher_id")
+    if not name or not question:
+        return jsonify({"error": "name da question suna da muhimmanci"}), 400
+    conn = get_db()
+    conn.execute("INSERT INTO questions (name, question, answer, teacher_id) VALUES (?, ?, ?, ?)", (name, question, answer, teacher_id))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "An karbi tambayar cikin nasara!"}), 201
+
+@app.route("/ask")
+def ask():
+         return render_template("ask.html")
+
+
+@app.route("/download-pdf")
+def download_pdf():
+    filename = request.args.get("file")
+    allowed = ["His ah principle in Islam.pdf", "Ethics_of_Islam.pdf", "book1.pdf"]
+    if filename not in allowed:
+        return "PDF ba a samu ba", 404
+    return send_from_directory("static/pdfs", filename, as_attachment=True)
+@app.route("/study1")
+def study1():
+    return render_template("study1.html")
+
+@app.route("/study2")
+def study2():
+    return render_template("study2.html")
+
+@app.route("/studies")
+def studies():
+    return render_template("studies.html")
+
+@app.route("/study3")
+def study3():
+    return render_template("study3.html")
+
+@app.route("/download/book1")
+def download_book1():
+    return send_from_directory("static/pdfs", "book1.pdf", as_attachment=True)
+
+@app.route("/downloads")
+def downloads():
+    return render_template("downloads.html")
+
+@app.route("/scholar-login", methods=["GET", "POST"])
+def scholar_login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        conn = get_db()
+        teacher = conn.execute("SELECT * FROM teachers WHERE username = ?", (username,)).fetchone()
+        conn.close()
+        if teacher and check_password_hash(teacher["password_hash"], password):
+            session["teacher_id"] = teacher["id"]
+            session["teacher_name"] = teacher["name"]
+            return redirect(url_for("scholar_dashboard"))
+        return render_template("scholar_login.html", error="Username ko password ba daidai ba")
+    return render_template("scholar_login.html")
+
+@app.route("/admin-login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        conn = get_db()
+        admin = conn.execute("SELECT * FROM admins WHERE username = ?", (username,)).fetchone()
+        conn.close()
+        if admin and check_password_hash(admin["password_hash"], password):
+            session["admin_id"] = admin["id"]
+            session["admin_username"] = admin["username"]
+            return redirect(url_for("admin_dashboard"))
+        return render_template("admin_login.html", error="Username ko password ba daidai ba")
+    return render_template("admin_login.html")
+
+
+@app.route("/scholar-dashboard")
+def scholar_dashboard():
+    if "teacher_id" not in session:
+        return redirect(url_for("scholar_login"))
+    return render_template("scholar_dashboard.html", name=session.get("teacher_name"))
+
+
+
+@app.route("/scholar-logout")
+def scholar_logout():
+    session.pop("teacher_id", None)
+    session.pop("teacher_name", None)
+    return redirect(url_for("scholar_login"))
+
+@app.route("/answer-question/<int:question_id>", methods=["POST"])
+def answer_question(question_id):
+    if "teacher_id" not in session:
+        return redirect(url_for("scholar_login"))
+
+    answer = request.form.get("answer", "").strip()
+
+    if not answer:
+        return "Answer cannot be empty", 400
+
+    conn = get_db()
+    conn.execute(
+        "UPDATE questions SET answer = ? WHERE id = ?",
+        (answer, question_id)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("get_questions"))
+
+
+@app.route("/admin-add-teacher", methods=["GET", "POST"])
+def admin_add_teacher():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        specialization = request.form.get("specialization", "").strip()
+        bio = request.form.get("bio", "").strip()
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        if not name or not username or not password:
+            return render_template("admin_add_teacher.html", error="Name, username and password are required.")
+
+        password_hash = generate_password_hash(password)
+
+        conn = get_db()
+        try:
+            conn.execute(
+                "INSERT INTO teachers (name, specialization, bio, username, password_hash) VALUES (?, ?, ?, ?, ?)",
+                (name, specialization, bio, username, password_hash)
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            conn.close()
+            return render_template("admin_add_teacher.html", error="Username already exists.")
+        conn.close()
+
+        return redirect(url_for("get_teachers"))
+
+    return render_template("admin_add_teacher.html")
+@app.route("/admin-dashboard")
+def admin_dashboard():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+    teachers_count = conn.execute("SELECT COUNT(*) FROM teachers").fetchone()[0]
+    questions_count = conn.execute("SELECT COUNT(*) FROM questions").fetchone()[0]
+    studies_count = conn.execute("SELECT COUNT(*) FROM books").fetchone()[0]
+    pdf_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'PDF'").fetchone()[0]
+    epub_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'EPUB'").fetchone()[0]
+    audio_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'Audio'").fetchone()[0]
+    video_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'Video'").fetchone()[0]
+    recent_questions = conn.execute("SELECT * FROM questions ORDER BY id DESC LIMIT 10").fetchall()
+    conn.close()
+
+    return render_template(
+        "admin_dashboard.html",
+        teachers_count=teachers_count,
+        questions_count=questions_count,
+        studies_count=studies_count,
+        pdf_count=pdf_count,
+        epub_count=epub_count,
+        audio_count=audio_count,
+        video_count=video_count,
+        recent_questions=recent_questions
+    )
+
+
+@app.route("/admin-manage-content")
+def admin_manage_content():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+    media = conn.execute(
+        "SELECT * FROM media ORDER BY id DESC"
+    ).fetchall()
+    conn.close()
+
+    return render_template(
+        "admin_manage_content.html",
+        media=media
+    )
+
+@app.route("/admin-delete-content/<int:content_id>", methods=["POST"])
+def admin_delete_content(content_id):
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+    item = conn.execute(
+        "SELECT file_path FROM media WHERE id = ?",
+        (content_id,)
+    ).fetchone()
+
+    if item:
+        file_path = item["file_path"]
+        static_dir = Path(app.root_path) / "static"
+        full_path = (static_dir / file_path).resolve()
+
+        if static_dir.resolve() in full_path.parents and full_path.is_file():
+            full_path.unlink()
+
+        conn.execute("DELETE FROM media WHERE id = ?", (content_id,))
+        conn.commit()
+
+    conn.close()
+    return redirect(url_for("admin_manage_content"))
+
+@app.route("/admin-edit-content/<int:content_id>", methods=["GET", "POST"])
+def admin_edit_content(content_id):
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+    item = conn.execute(
+        "SELECT * FROM media WHERE id = ?",
+        (content_id,)
+    ).fetchone()
+
+    if not item:
+        conn.close()
+        return "Content not found", 404
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        description = request.form.get("description", "").strip()
+
+        if not title:
+            conn.close()
+            return render_template(
+                "admin_edit_content.html",
+                item=item,
+                error="Title is required."
+            )
+
+        conn.execute(
+            "UPDATE media SET title = ?, author = ?, description = ? WHERE id = ?",
+            (title, author, description, content_id)
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("admin_manage_content"))
+
+    conn.close()
+    return render_template("admin_edit_content.html", item=item)
+
+@app.route("/admin-logout")
+def admin_logout():
+    session.pop("admin_id", None)
+    session.pop("admin_username", None)
+    return redirect(url_for("admin_login"))
+
+
+@app.route("/audios")
+def audios():
+    return render_template("audios.html")
+
+@app.route("/videos")
+def videos():
+    return render_template("videos.html")
+
+
+@app.route("/download-audio/<path:filename>")
+def download_audio(filename):
+    return send_from_directory("static/audio", filename, as_attachment=True)
+
+
+@app.route("/download-video/<path:filename>")
+def download_video(filename):
+    return send_from_directory("static/videos", filename, as_attachment=True)
+
+
+@app.route("/admin-add-pdf", methods=["GET", "POST"])
+def admin_add_pdf():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        description = request.form.get("description", "").strip()
+        file = request.files.get("file")
+
+        if not title or not file or not file.filename:
+            return render_template(
+                "admin_add_pdf.html",
+                error="Please provide a title and select a PDF file."
+            )
+
+        original_filename = file.filename or ""
+
+        if not original_filename.lower().endswith(".pdf"):
+            return render_template(
+                "admin_add_pdf.html",
+                error="Only PDF files are allowed."
+            )
+
+        filename = secure_filename(original_filename)
+
+        if not filename or not filename.lower().endswith(".pdf"):
+            import uuid
+            filename = f"pdf_{uuid.uuid4().hex}.pdf"
+
+        pdf_folder = os.path.join(app.root_path, "static", "pdfs")
+        os.makedirs(pdf_folder, exist_ok=True)
+
+        file.save(os.path.join(pdf_folder, filename))
+
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO books (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
+            (title, author, description, f"pdfs/{filename}", "PDF")
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin_add_pdf.html")
+
+
+
+@app.route("/admin-add-epub", methods=["GET", "POST"])
+def admin_add_epub():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        description = request.form.get("description", "").strip()
+        file = request.files.get("file")
+
+        if not title or not file or not file.filename:
+            return render_template(
+                "admin_add_epub.html",
+                error="Please provide a title and select an EPUB file."
+            )
+
+        filename = secure_filename(file.filename)
+
+        if not filename.lower().endswith(".epub"):
+            return render_template(
+                "admin_add_epub.html",
+                error="Only EPUB files are allowed."
+            )
+
+        epub_folder = os.path.join(app.root_path, "static", "epubs")
+        os.makedirs(epub_folder, exist_ok=True)
+
+        file.save(os.path.join(epub_folder, filename))
+
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO books (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
+            (title, author, description, f"epubs/{filename}", "EPUB")
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin_add_epub.html")
+
+
+
+@app.route("/admin-add-audio", methods=["GET", "POST"])
+def admin_add_audio():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        description = request.form.get("description", "").strip()
+        file = request.files.get("file")
+
+        if not title or not file or not file.filename:
+            return render_template(
+                "admin_add_audio.html",
+                error="Please provide a title and select an audio file."
+            )
+
+        filename = secure_filename(file.filename)
+        allowed = {".mp3", ".m4a", ".wav", ".ogg", ".aac"}
+
+        if not any(filename.lower().endswith(ext) for ext in allowed):
+            return render_template(
+                "admin_add_audio.html",
+                error="Only supported audio files are allowed."
+            )
+
+        audio_folder = os.path.join(app.root_path, "static", "audios")
+        os.makedirs(audio_folder, exist_ok=True)
+
+        file.save(os.path.join(audio_folder, filename))
+
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO media (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
+            (title, author, description, f"audios/{filename}", "Audio")
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin_add_audio.html")
+
+
+
+@app.route("/admin-add-video", methods=["GET", "POST"])
+def admin_add_video():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        description = request.form.get("description", "").strip()
+        file = request.files.get("file")
+
+        if not title or not file or not file.filename:
+            return render_template(
+                "admin_add_video.html",
+                error="Please provide a title and select a video file."
+            )
+
+        filename = secure_filename(file.filename)
+        allowed = {".mp4", ".webm", ".mov", ".mkv"}
+
+        if Path(filename).suffix.lower() not in allowed:
+            return render_template(
+                "admin_add_video.html",
+                error="Only supported video files are allowed."
+            )
+
+        video_folder = os.path.join(app.root_path, "static", "videos")
+        os.makedirs(video_folder, exist_ok=True)
+
+        file.save(os.path.join(video_folder, filename))
+
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin_add_video.html")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)
+

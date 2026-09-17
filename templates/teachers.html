@@ -1,0 +1,83 @@
+<!DOCTYPE html> <html lang="en"> <head> 
+    <meta charset="UTF-8"> <meta 
+    name="viewport" 
+    content="width=device-width, 
+    initial-scale=1.0"> <title>Our 
+    Scholars - Darul Bahs Wal 
+    Ifta</title> <style>
+        body { margin: 0; font-family: 
+            Arial, sans-serif; 
+            background: #f5fff8; color: 
+            #222;
+            text-align: center;
+        }
+        header { background: #087f3d; 
+            color: white; padding: 25px 
+            15px;
+        }
+        header h1 { margin: 0; font-size: 
+            32px;
+        }
+        header h2 { margin: 10px 0 0; 
+            font-size: 22px;
+        }
+        .container { padding: 30px 18px;
+        }
+        .title { color: #087f3d; 
+            font-size: 30px; 
+            margin-bottom: 25px;
+        }
+        .scholar { background: white; 
+            max-width: 500px; margin: 0 
+            auto 20px; padding: 25px 
+            20px; border-radius: 18px; 
+            box-shadow: 0 4px 15px 
+            rgba(0,0,0,0.10);
+        }
+        .scholar h3 { color: #087f3d; 
+            font-size: 24px; margin: 0 0 
+            10px;
+        }
+        .specialization { font-weight: 
+            bold; color: #b8860b; 
+            margin-bottom: 12px;
+        }
+        .bio { line-height: 1.6; color: 
+            #444;
+        }
+        .back { display: inline-block; 
+            margin-top: 10px; padding: 
+            14px 25px; background: 
+            #087f3d;
+            color: white; 
+            text-decoration: none; 
+            border-radius: 10px; 
+            font-weight: bold;
+        }
+        footer { margin-top: 35px; 
+            padding: 20px; background: 
+            #087f3d;
+            color: white;
+        }
+    </style> </head> <body> <header> 
+    <h1>دار البحث والإفتاء</h1> <h2>Darul 
+    Bahs Wal Ifta</h2>
+</header> <div class="container"> <h1 
+    class="title">Our Scholars</h1> {% 
+    for teacher in teachers %} <div 
+    class="scholar">
+        <h3>{{ teacher["name"] }}</h3> 
+        <div class="specialization">
+            {{ teacher["specialization"] 
+            }}
+        </div> <div class="bio"> {{ 
+            teacher["bio"] }}
+        </div> </div> {% endfor %} <a 
+    href="/" class="back">← Back to 
+    Home</a>
+</div> <footer> © 2026 Darul Bahs Wal 
+    Ifta
+</footer> </body>
+</html>
+
+

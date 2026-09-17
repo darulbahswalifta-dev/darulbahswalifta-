@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Littattafai</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4faf6;
+            margin: 0;
+            padding: 30px 15px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #0f6b3a;
+            font-size: 32px;
+        }
+
+        h2 {
+            color: #111;
+            font-size: 25px;
+        }
+
+        .card {
+            background: white;
+            max-width: 600px;
+            margin: 25px auto;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+        }
+
+        .card h3 {
+            color: #176b45;
+            font-size: 24px;
+        }
+
+        .card p {
+            font-size: 17px;
+            line-height: 1.6;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #0f6b3a;
+            color: white;
+            padding: 15px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .download-btn:hover {
+            background: #084d29;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>دار البحث والإفتاء</h1>
+    <h2>Download Littattafai</h2>
+
+    <div class="card">
+        <h3>His ah principle in Islam</h3>
+        <p>Karanta ko sauke wannan littafin a PDF.</p>
+
+        <a class="download-btn"
+           href="/download-pdf?file=His%20ah%20principle%20in%20Islam.pdf">
+            Download PDF
+        </a>
+    </div>
+
+    <div class="card">
+        <h3>Ethics of Islam</h3>
+        <p>Karanta ko sauke wannan littafin a PDF.</p>
+
+        <a class="download-btn"
+           href="/download-pdf?file=Ethics_of_Islam.pdf">
+            Download PDF
+        </a>
+    </div>
+
+<div class="card">
+    <h3>Nashr al-'Ilm al-Sahih</h3>
+    <p>Karanta littafin da ya shafi yada ilimi sahihi ga al'umma.</p>
+    <a class="download-btn" href="/download-pdf?file=book1.pdf">
+        Download PDF
+    </a>
+</div>
+<script>
+document.querySelectorAll(".download-btn").forEach(function(btn) {
+    btn.addEventListener("click", async function(e) {
+        e.preventDefault();
+
+        const original = btn.innerHTML;
+        btn.innerHTML = "✓ Downloading...";
+        btn.style.pointerEvents = "none";
+
+        try {
+            const response = await fetch(btn.href);
+            if (!response.ok) throw new Error("Download failed");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = btn.href.split("file=")[1];
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            btn.innerHTML = "✓ Downloaded";
+        } catch (error) {
+            btn.innerHTML = "✗ Download failed";
+            setTimeout(function() {
+                btn.innerHTML = original;
+                btn.style.pointerEvents = "auto";
+            }, 2000);
+        }
+    });
+});
+</script></body>
+</html>
