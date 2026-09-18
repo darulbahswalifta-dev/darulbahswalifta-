@@ -22,6 +22,60 @@ for folder in (STORAGE_DIR, PDF_FOLDER, EPUB_FOLDER, AUDIO_FOLDER, VIDEO_FOLDER)
 def get_db():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS teachers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            specialization TEXT,
+            bio TEXT,
+            username TEXT,
+            password_hash TEXT
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS books (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            author TEXT,
+            description TEXT,
+            file_path TEXT,
+            file_type TEXT
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            question TEXT NOT NULL,
+            answer TEXT,
+            teacher_id INTEGER,
+            FOREIGN KEY (teacher_id) REFERENCES teachers(id)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS admins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS media (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            author TEXT,
+            description TEXT,
+            file_path TEXT NOT NULL,
+            file_type TEXT NOT NULL
+        )
+    """)
+
+    conn.commit()
     return conn
 
 
