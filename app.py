@@ -5,7 +5,7 @@ import sqlite3
 import os
 
 app = Flask(__name__)
-app.secret_key = os.environ["SECRET_KEY"]
+app.secret_key = os.environ.get("SECRET_KEY")
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 
