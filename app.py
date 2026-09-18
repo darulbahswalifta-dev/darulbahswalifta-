@@ -264,18 +264,29 @@ def admin_delete_content(content_id):
         (content_id,)
     ).fetchone()
 
-    if item:
-        file_path = item["file_path"]
-        static_dir = Path(app.root_path) / "static"
-        full_path = (static_dir / file_path).resolve()
+    if not item:
+        conn.close()
+        return "Content not found", 404
 
-        if static_dir.resolve() in full_path.parents and full_path.is_file():
-            full_path.unlink()
+    file_path = item["file_path"]
+    full_path = os.path.abspath(os.path.join(app.static_folder, file_path))
+    static_path = os.path.abspath(app.static_folder)
 
-        conn.execute("DELETE FROM media WHERE id = ?", (content_id,))
-        conn.commit()
+    if os.path.commonpath([full_path, static_path]) != static_path:
+        conn.close()
+        return "Invalid file path", 400
 
+    try:
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+    except OSError:
+        conn.close()
+        return "Could not delete the file", 500
+
+    conn.execute("DELETE FROM media WHERE id = ?", (content_id,))
+    conn.commit()
     conn.close()
+
     return redirect(url_for("admin_manage_content"))
 
 @app.route("/admin-edit-content/<int:content_id>", methods=["GET", "POST"])
