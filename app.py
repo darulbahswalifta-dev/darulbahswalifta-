@@ -9,7 +9,7 @@ app.secret_key = os.environ.get("SECRET_KEY")
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 
-DATABASE = "darul_bahs.db"
+DATABASE = os.path.join("storage", "darul_bahs.db")
 
 
 def get_db():
