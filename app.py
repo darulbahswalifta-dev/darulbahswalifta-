@@ -9,7 +9,14 @@ app.secret_key = os.environ.get("SECRET_KEY")
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 
-DATABASE = os.path.join("storage", "darul_bahs.db")
+STORAGE_DIR = os.environ.get("STORAGE_DIR", os.path.join(app.root_path, "storage"))
+DATABASE = os.path.join(STORAGE_DIR, "darul_bahs.db")
+PDF_FOLDER = os.path.join(STORAGE_DIR, "pdfs")
+EPUB_FOLDER = os.path.join(STORAGE_DIR, "epubs")
+AUDIO_FOLDER = os.path.join(STORAGE_DIR, "audios")
+VIDEO_FOLDER = os.path.join(STORAGE_DIR, "videos")
+for folder in (STORAGE_DIR, PDF_FOLDER, EPUB_FOLDER, AUDIO_FOLDER, VIDEO_FOLDER):
+    os.makedirs(folder, exist_ok=True)
 
 
 def get_db():
@@ -85,7 +92,7 @@ def download_pdf():
     allowed = ["His ah principle in Islam.pdf", "Ethics_of_Islam.pdf", "book1.pdf"]
     if filename not in allowed:
         return "PDF ba a samu ba", 404
-    return send_from_directory("static/pdfs", filename, as_attachment=True)
+    return send_from_directory(PDF_FOLDER, filename, as_attachment=True)
 @app.route("/study1")
 def study1():
     return render_template("study1.html")
@@ -104,7 +111,7 @@ def study3():
 
 @app.route("/download/book1")
 def download_book1():
-    return send_from_directory("static/pdfs", "book1.pdf", as_attachment=True)
+    return send_from_directory(PDF_FOLDER, "book1.pdf", as_attachment=True)
 
 @app.route("/downloads")
 def downloads():
@@ -386,7 +393,7 @@ def admin_add_pdf():
             import uuid
             filename = f"pdf_{uuid.uuid4().hex}.pdf"
 
-        pdf_folder = os.path.join(app.root_path, "static", "pdfs")
+        pdf_folder = PDF_FOLDER
         os.makedirs(pdf_folder, exist_ok=True)
 
         file.save(os.path.join(pdf_folder, filename))
@@ -430,7 +437,7 @@ def admin_add_epub():
                 error="Only EPUB files are allowed."
             )
 
-        epub_folder = os.path.join(app.root_path, "static", "epubs")
+        epub_folder = EPUB_FOLDER
         os.makedirs(epub_folder, exist_ok=True)
 
         file.save(os.path.join(epub_folder, filename))
@@ -475,7 +482,7 @@ def admin_add_audio():
                 error="Only supported audio files are allowed."
             )
 
-        audio_folder = os.path.join(app.root_path, "static", "audios")
+        audio_folder = AUDIO_FOLDER
         os.makedirs(audio_folder, exist_ok=True)
 
         file.save(os.path.join(audio_folder, filename))
@@ -520,7 +527,7 @@ def admin_add_video():
                 error="Only supported video files are allowed."
             )
 
-        video_folder = os.path.join(app.root_path, "static", "videos")
+        video_folder = VIDEO_FOLDER
         os.makedirs(video_folder, exist_ok=True)
 
         file.save(os.path.join(video_folder, filename))
