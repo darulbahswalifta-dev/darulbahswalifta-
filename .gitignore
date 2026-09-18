@@ -6,3 +6,5 @@ __pycache__/
 *_backup_*.py
 venv/
 .venv/
+
+storage/
