@@ -526,49 +526,6 @@ def admin_add_pdf():
 
 
 
-@app.route("/admin-add-epub", methods=["GET", "POST"])
-def admin_add_epub():
-    if "admin_id" not in session:
-        return redirect(url_for("admin_login"))
-
-    if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        author = request.form.get("author", "").strip()
-        description = request.form.get("description", "").strip()
-        file = request.files.get("file")
-
-        if not title or not file or not file.filename:
-            return render_template(
-                "admin_add_epub.html",
-                error="Please provide a title and select an EPUB file."
-            )
-
-        filename = secure_filename(file.filename)
-
-        if not filename.lower().endswith(".epub"):
-            return render_template(
-                "admin_add_epub.html",
-                error="Only EPUB files are allowed."
-            )
-
-        epub_folder = EPUB_FOLDER
-        os.makedirs(epub_folder, exist_ok=True)
-
-        file.save(os.path.join(epub_folder, filename))
-
-        conn = get_db()
-        conn.execute(
-            "INSERT INTO books (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
-            (title, author, description, f"epubs/{filename}", "EPUB")
-        )
-        conn.commit()
-        conn.close()
-
-        return redirect(url_for("admin_dashboard"))
-
-    return render_template("admin_add_epub.html")
-
-
 
 @app.route("/admin-add-audio", methods=["GET", "POST"])
 def admin_add_audio():
