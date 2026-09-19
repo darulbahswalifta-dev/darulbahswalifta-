@@ -75,6 +75,16 @@ def get_db():
         )
     """)
 
+    if conn.execute("SELECT COUNT(*) FROM teachers").fetchone()[0] == 0:
+        teachers_seed = [
+            ("Malam Muhammad", "Fiqh", "Malami mai koyar da ilimin Fiqhu"),
+            ("Malam Abdullahi", "Hadith", "Malami mai koyar da ilimin Hadisi"),
+            ("Malam Gwaji", "Fiqh", "Malami mai koyar da ilimin Fiqhu"),
+            ("Shaikh Ahmad Salihu Bukar", "Akida", "Malami Mai Kwarewa a fannin Akida"),
+            ("Shaikh Abubakar Muhammad Musa", "Fiqhu and Lugga", "Shaikh limami ne na Ahlussunnah a Ningi kuma Shugaban Mallamai na Ningi Iga")
+        ]
+        conn.executemany("INSERT INTO teachers (name, specialization, bio) VALUES (?, ?, ?)", teachers_seed)
+
     conn.commit()
     return conn
 
