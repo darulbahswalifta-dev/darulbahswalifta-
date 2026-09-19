@@ -85,7 +85,16 @@ def get_db():
         ]
         conn.executemany("INSERT INTO teachers (name, specialization, bio) VALUES (?, ?, ?)", teachers_seed)
 
-    conn.commit()
+    if conn.execute("SELECT COUNT(*) FROM media").fetchone()[0] == 0:
+        media_seed = [
+            ("Ethics of Islam", "", "Islamic Research", "pdfs/Ethics_of_Islam.pdf", "PDF"),
+            ("His ah principle in Islam", "", "Islamic Research", "pdfs/His_ah principle in Islam.pdf", "PDF"),
+            ("Noor Book", "", "Islamic Research", "pdfs/Noor-Book.com_.pdf", "PDF"),
+            ("Book 1", "", "Islamic Research", "pdfs/book1.pdf", "PDF"),
+            ("La ilaha Illallah", "", "Islamic Research", "pdfs/pdf_6c3fc0c983de44a1907ff0c2bf966c4.pdf", "PDF")
+        ]
+        conn.executemany("INSERT INTO media (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)", media_seed)
+        conn.commit()
     return conn
 
 
