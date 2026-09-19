@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Teachers - Darul Bahs Wal Ifta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f8f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #087f3e;
+            text-align: center;
+        }
+
+        .add-btn {
+            display: block;
+            width: fit-content;
+            margin: 20px auto;
+            padding: 12px 22px;
+            background: #087f3e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .teacher {
+            background: white;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 700px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .teacher h2 {
+            color: #087f3e;
+            margin-top: 0;
+        }
+
+        .specialization {
+            color: #b08a00;
+            font-weight: bold;
+        }
+
+        .actions a {
+            display: inline-block;
+            margin: 10px 8px 0 0;
+            padding: 9px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            background: #087f3e;
+        }
+
+        .back {
+            background: #555 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Manage Teachers / Scholars</h1>
+
+    <a class="add-btn" href="{{ url_for('admin_add_teacher') }}">
+        + Add Teacher / Scholar
+    </a>
+
+    {% for teacher in teachers %}
+    <div class="teacher">
+        <h2>{{ teacher["name"] }}</h2>
+
+        <p class="specialization">
+            {{ teacher["specialization"] }}
+        </p>
+
+        <p>{{ teacher["bio"] }}</p>
+
+        <p><strong>Username:</strong> {{ teacher["username"] }}</p>
+
+        <div class="actions">
+            <a href="#">Edit</a>
+            <a href="#">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <a class="add-btn back" href="{{ url_for('admin_dashboard') }}">
+        ← Back to Admin Dashboard
+    </a>
+
+</body>
+</html>
