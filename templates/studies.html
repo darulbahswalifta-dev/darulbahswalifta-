@@ -1,93 +1,274 @@
 <!DOCTYPE html>
-<html lang="ha">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karanta Nazari - دار البحث والإفتاء</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Islamic Research - Darul Bahs Wal Ifta</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3faf6;
-            text-align: center;
-            color: #111;
-        }
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4fff7;
+    color:#164d2b;
+}
 
-        h1 {
-            margin-top: 40px;
-            color: #146b43;
-            font-size: 34px;
-        }
+.header{
+    background:#087f3d;
+    color:white;
+    text-align:center;
+    padding:28px 15px;
+}
 
-        h2 {
-            font-size: 28px;
-            margin-top: 10px;
-        }
+.header h1{
+    margin:0;
+    font-size:30px;
+}
 
-        .card {
-            background: white;
-            margin: 30px auto;
-            padding: 30px 20px;
-            width: 85%;
-            max-width: 600px;
-            border-radius: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
-        }
+.header p{
+    margin:10px 0 0;
+    font-size:22px;
+}
 
-        .card h3 {
-            color: #146b43;
-            font-size: 25px;
-        }
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:25px 15px 40px;
+}
 
-        .card p {
-            font-size: 18px;
-            line-height: 1.6;
-        }
-    </style>
+.title{
+    text-align:center;
+    color:#087f3d;
+    font-size:32px;
+    margin-bottom:25px;
+}
+
+.search{
+    width:100%;
+    box-sizing:border-box;
+    padding:15px;
+    border:2px solid #087f3d;
+    border-radius:12px;
+    font-size:17px;
+    margin-bottom:25px;
+}
+
+.categories{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+}
+
+.category{
+    background:white;
+    border-radius:14px;
+    padding:20px 10px;
+    text-align:center;
+    border:1px solid #d5eadc;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+
+.category .icon{
+    font-size:32px;
+}
+
+.category h3{
+    margin:10px 0 5px;
+    color:#087f3d;
+}
+
+.category p{
+    margin:0;
+    color:#555;
+    font-size:14px;
+}
+
+.section{
+    margin-top:35px;
+}
+
+.section h2{
+    color:#087f3d;
+    border-bottom:2px solid #d4af37;
+    padding-bottom:8px;
+}
+
+.card{
+    background:white;
+    margin:15px 0;
+    padding:18px;
+    border-radius:14px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+
+.card h3{
+    color:#087f3d;
+    margin-top:0;
+}
+
+.card p{
+    color:#555;
+}
+
+.read-btn{
+    display:inline-block;
+    background:#087f3d;
+    color:white;
+    text-decoration:none;
+    padding:11px 18px;
+    border-radius:9px;
+    margin-top:8px;
+}
+
+.back{
+    display:block;
+    text-align:center;
+    background:#087f3d;
+    color:white;
+    text-decoration:none;
+    padding:15px;
+    border-radius:12px;
+    margin-top:30px;
+    font-size:18px;
+}
+
+.footer{
+    background:#087f3d;
+    color:white;
+    text-align:center;
+    padding:22px;
+    margin-top:20px;
+}
+</style>
 </head>
 
 <body>
-<div class="content-list">
-{% for study in studies %}
-<div class="card">
-<h3>{{ study["title"] }}</h3>
-<p>{{ study["description"] or "Islamic Research" }}</p>
-{% if study["file_path"] %}
-<a class="read-btn" href="{{ url_for("download_media", media_id=study["id"]) }}">Download {{ study["file_type"] }}</a>
-{% endif %}
-</div>
-{% endfor %}
-</div>
 
+<div class="header">
     <h1>دار البحث والإفتاء</h1>
-    <h2>Karanta Nazari</h2>
+    <p>Darul Bahs Wal Ifta</p>
+</div>
 
-    <div class="card">
-        <h3>Ilmin Addinin Musulunci</h3>
-            <a class="read-btn" href="/study1">Karanta Nazari</a>
-        <p>
-            Karanta nazarce-nazarce da bayanai masu amfani
-            game da ilmin Addinin Musulunci.
-        </p>
+<div class="container">
+
+    <h1 class="title">📚 Islamic Research Library</h1>
+
+    <input
+        class="search"
+        type="text"
+        placeholder="🔎 Search Islamic Research..."
+        onkeyup="searchResearch(this.value)"
+    >
+
+    <div class="categories">
+
+        <div class="category">
+            <div class="icon">📚</div>
+            <h3>Books</h3>
+            <p>Islamic books and valuable resources</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">📜</div>
+            <h3>Research Papers</h3>
+            <p>Academic Islamic studies and research</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">🕌</div>
+            <h3>Fiqh & Fatawa</h3>
+            <p>Fiqh studies and Islamic verdicts</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">📕</div>
+            <h3>Aqida</h3>
+            <p>Studies on Islamic creed</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">📗</div>
+            <h3>Hadith</h3>
+            <p>Hadith studies and research</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">📘</div>
+            <h3>Tafsir</h3>
+            <p>Qur'an Tafsir and related studies</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">📝</div>
+            <h3>Articles</h3>
+            <p>Useful Islamic articles</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">🎧</div>
+            <h3>Audio Research</h3>
+            <p>Islamic lectures and audio lessons</p>
+        </div>
+
+        <div class="category">
+            <div class="icon">🎥</div>
+            <h3>Video Lectures</h3>
+            <p>Islamic lectures and educational videos</p>
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Fiqhu da Fatawa</h3>
-<a class="read-btn" href="/study2">Karanta Nazari</a>
-        <p>
-            Nazari kan Fiqhu, Fatawa da sauran batutuwan
-            addini.
-        </p>
+    <div class="section">
+        <h2>📖 Available Research</h2>
+
+        <div id="researchList">
+
+        {% for study in studies %}
+        <div class="card research-item" data-category="{{ study["category"] }}">
+            <h3>{{ study["title"] }}</h3>
+
+            {% if study["author"] %}
+            <p><strong>Author:</strong> {{ study["author"] }}</p>
+            {% endif %}
+
+            <p>{{ study["description"] or "Islamic Research" }}</p>
+
+            <a class="read-btn"
+               href="{{ url_for('download_media', media_id=study['id']) }}">
+                ⬇️ Download {{ study["file_type"] }}
+            </a>
+        </div>
+        {% endfor %}
+
+        </div>
     </div>
 
-    <div class="card">
-        <h3>Nashr al-'Ilm al-Sahih</h3>
-<a class="read-btn" href="/study3">Karanta Nazari</a>
-        <p>
-            Yada ingantaccen ilimi domin amfanin al'umma.
-        </p>
-    </div>
+    <a class="back" href="/">← Back to Home</a>
+
+</div>
+
+<div class="footer">
+    © 2026 Darul Bahs Wal Ifta
+</div>
+
+<script>
+function searchResearch(value){
+    value = value.toLowerCase();
+
+    document.querySelectorAll(".card").forEach(function(item){
+        item.style.display =
+            item.innerText.toLowerCase().includes(value)
+            ? "block"
+            : "none";
+    });
+}
+
+function filterCategory(category){
+    document.querySelectorAll('.research-item').forEach(function(item){
+        item.style.display = (category === 'All' || item.dataset.category === category) ? 'block' : 'none';
+    });
+}
+</script>
 
 </body>
 </html>
