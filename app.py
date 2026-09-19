@@ -202,7 +202,7 @@ def download_media(media_id):
 @app.route("/studies")
 def studies():
     conn = get_db()
-    studies = conn.execute("SELECT * FROM media WHERE file_type IN ('PDF', 'EPUB') ORDER BY id DESC").fetchall()
+    studies = conn.execute("SELECT * FROM media WHERE file_type = 'PDF' ORDER BY id DESC").fetchall()
     conn.close()
     return render_template("studies.html", studies=studies)
 
