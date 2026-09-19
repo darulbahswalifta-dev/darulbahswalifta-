@@ -71,9 +71,14 @@ def get_db():
             author TEXT,
             description TEXT,
             file_path TEXT NOT NULL,
-            file_type TEXT NOT NULL
+            file_type TEXT NOT NULL,
+            category TEXT DEFAULT 'Books'
         )
     """)
+
+    media_columns = [row[1] for row in conn.execute("PRAGMA table_info(media)").fetchall()]
+    if "category" not in media_columns:
+        conn.execute("ALTER TABLE media ADD COLUMN category TEXT DEFAULT 'Books'")
 
     if conn.execute("SELECT COUNT(*) FROM teachers").fetchone()[0] == 0:
         teachers_seed = [
@@ -496,9 +501,11 @@ def admin_add_pdf():
         file.save(os.path.join(pdf_folder, filename))
 
         conn = get_db()
+        category = request.form.get("category", "Books").strip()
+
         conn.execute(
-            "INSERT INTO books (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
-            (title, author, description, f"pdfs/{filename}", "PDF")
+            "INSERT INTO media (title, author, description, file_path, file_type, category) VALUES (?, ?, ?, ?, ?, ?)",
+            (title, author, description, f"pdfs/{filename}", "PDF", category)
         )
         conn.commit()
         conn.close()
