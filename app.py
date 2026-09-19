@@ -5,7 +5,7 @@ import sqlite3
 import os
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY")
+app.secret_key = os.environ.get("SECRET_KEY", "darul-bahs-wal-ifta-dev-secret-2026")
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 
@@ -155,9 +155,22 @@ def study1():
 def study2():
     return render_template("study2.html")
 
+@app.route("/download-media/<int:media_id>")
+def download_media(media_id):
+    conn = get_db()
+    item = conn.execute("SELECT * FROM media WHERE id = ?", (media_id,)).fetchone()
+    conn.close()
+    if not item:
+        return "Content not found", 404
+    file_path = item["file_path"]
+    return send_from_directory(app.static_folder, file_path, as_attachment=True)
+
 @app.route("/studies")
 def studies():
-    return render_template("studies.html")
+    conn = get_db()
+    studies = conn.execute("SELECT * FROM media WHERE file_type IN ('PDF', 'EPUB') ORDER BY id DESC").fetchall()
+    conn.close()
+    return render_template("studies.html", studies=studies)
 
 @app.route("/study3")
 def study3():
@@ -269,6 +282,17 @@ def admin_add_teacher():
         return redirect(url_for("get_teachers"))
 
     return render_template("admin_add_teacher.html")
+@app.route("/admin-teachers")
+def admin_teachers():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+    teachers = conn.execute("SELECT * FROM teachers ORDER BY id DESC").fetchall()
+    conn.close()
+
+    return render_template("admin_teachers.html", teachers=[dict(t) for t in teachers])
+
 @app.route("/admin-dashboard")
 def admin_dashboard():
     if "admin_id" not in session:
@@ -592,5 +616,5 @@ def admin_add_video():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5001, debug=False)
 

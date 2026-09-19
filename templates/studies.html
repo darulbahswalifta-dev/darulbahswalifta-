@@ -48,6 +48,17 @@
 </head>
 
 <body>
+<div class="content-list">
+{% for study in studies %}
+<div class="card">
+<h3>{{ study["title"] }}</h3>
+<p>{{ study["description"] or "Islamic Research" }}</p>
+{% if study["file_path"] %}
+<a class="read-btn" href="{{ url_for("download_media", media_id=study["id"]) }}">Download {{ study["file_type"] }}</a>
+{% endif %}
+</div>
+{% endfor %}
+</div>
 
     <h1>دار البحث والإفتاء</h1>
     <h2>Karanta Nazari</h2>
