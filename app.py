@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "darul-bahs-wal-ifta-dev-secret-2026")
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 
 
 STORAGE_DIR = os.environ.get("STORAGE_DIR", os.path.join(app.root_path, "storage"))
@@ -109,6 +109,27 @@ def get_db():
                 "INSERT INTO media (title, author, description, file_path, file_type, category) VALUES (?, ?, ?, ?, ?, ?)",
                 item
             )
+    admin_username = os.environ.get("ADMIN_USERNAME")
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+
+    if admin_username and admin_password:
+        admin_hash = generate_password_hash(admin_password)
+        existing_admin = conn.execute(
+            "SELECT id FROM admins WHERE username = ?",
+            (admin_username,)
+        ).fetchone()
+
+        if existing_admin:
+            conn.execute(
+                "UPDATE admins SET password_hash = ? WHERE username = ?",
+                (admin_hash, admin_username)
+            )
+        else:
+            conn.execute(
+                "INSERT INTO admins (username, password_hash) VALUES (?, ?)",
+                (admin_username, admin_hash)
+            )
+
     conn.commit()
     return conn
 
