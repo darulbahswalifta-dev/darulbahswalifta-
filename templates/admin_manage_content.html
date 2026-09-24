@@ -26,7 +26,7 @@
         <p>{{ item['description'] or '' }}</p>
 
         <p>
-            <a href="{% if item['file_path'].startswith('http') %}{{ item['file_path'] }}{% else %}{{ url_for('static', filename=item['file_path']) }}{% endif %}"
+            <a href="{% if item['file_type'] == 'Audio' %}{{ url_for('download_audio', filename=item['file_path'].replace('audios/', '')) }}{% elif item['file_type'] == 'Video' %}{{ url_for('download_video', filename=item['file_path'].replace('videos/', '')) }}{% elif item['file_path'].startswith('http') %}{{ item['file_path'] }}{% else %}{{ url_for('static', filename=item['file_path']) }}{% endif %}"
                target="_blank"
                style="font-size:20px;">
                 👁️ View / Open
