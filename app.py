@@ -381,7 +381,7 @@ def admin_dashboard():
     studies_count = conn.execute("SELECT COUNT(*) FROM books").fetchone()[0]
     pdf_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'PDF'").fetchone()[0]
     epub_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'EPUB'").fetchone()[0]
-    audio_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'Audio'").fetchone()[0]
+    audio_count = conn.execute("SELECT COUNT(*) FROM media WHERE LOWER(TRIM(file_type)) = 'audio'").fetchone()[0]
     video_count = conn.execute("SELECT COUNT(*) FROM media WHERE file_type = 'Video'").fetchone()[0]
     recent_questions = conn.execute("SELECT * FROM questions ORDER BY id DESC LIMIT 10").fetchall()
     conn.close()
