@@ -509,6 +509,8 @@ def videos():
 
 @app.route("/download-audio/<path:filename>")
 def download_audio(filename):
+    if filename.startswith("http://") or filename.startswith("https://"):
+        return redirect(filename)
     return send_from_directory("static/audio", filename, as_attachment=True)
 
 
