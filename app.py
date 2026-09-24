@@ -1,3 +1,4 @@
+import requests
 from pathlib import Path
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -8,6 +9,24 @@ import os
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "darul-bahs-wal-ifta-dev-secret-2026")
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_BUCKET = os.environ.get("SUPABASE_BUCKET", "media")
+def upload_to_supabase(file_path, storage_path, content_type):
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        return None
+    url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{storage_path}"
+    headers = {
+        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+        "Content-Type": content_type,
+        "x-upsert": "true"
+    }
+    with open(file_path, "rb") as f:
+        response = requests.post(url, headers=headers, data=f)
+    if response.status_code not in (200, 201):
+        raise RuntimeError(f"Supabase upload failed: {response.status_code} {response.text}")
+    return f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{storage_path}"
+
 
 
 STORAGE_DIR = os.environ.get("STORAGE_DIR", os.path.join(app.root_path, "storage"))
@@ -219,6 +238,8 @@ def download_media(media_id):
     if not item:
         return "Content not found", 404
     file_path = item["file_path"]
+    if file_path.startswith("http://") or file_path.startswith("https://"):
+        return redirect(file_path)
     return send_from_directory(app.static_folder, file_path, as_attachment=True)
 
 @app.route("/studies")
@@ -580,10 +601,13 @@ def admin_add_audio():
 
         file.save(os.path.join(audio_folder, filename))
 
+        supabase_url = upload_to_supabase(os.path.join(audio_folder, filename), f"audios/{filename}", "audio/mpeg")
+        saved_path = supabase_url or f"audios/{filename}"
+
         conn = get_db()
         conn.execute(
             "INSERT INTO media (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
-            (title, author, description, f"audios/{filename}", "Audio")
+            (title, author, description, saved_path, "Audio")
         )
         conn.commit()
         conn.close()
