@@ -511,7 +511,9 @@ def videos():
 def download_audio(filename):
     if filename.startswith("http://") or filename.startswith("https://"):
         return redirect(filename)
-    return send_from_directory("static/audio", filename, as_attachment=True)
+    if filename.startswith("audios/"):
+        return redirect(f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{filename}")
+    return redirect(f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/audios/{filename}")
 
 
 @app.route("/download-video/<path:filename>")
