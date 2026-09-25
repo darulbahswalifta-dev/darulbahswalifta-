@@ -606,7 +606,9 @@ def admin_add_audio():
         file.save(os.path.join(audio_folder, filename))
 
         supabase_url = upload_to_supabase(os.path.join(audio_folder, filename), f"audios/{filename}", "audio/mpeg")
-        saved_path = supabase_url or f"audios/{filename}"
+        if not supabase_url:
+            return render_template("admin_add_audio.html", error="Audio upload to Supabase failed. Please try again.")
+        saved_path = f"audios/{filename}"
 
         conn = get_db()
         conn.execute(
