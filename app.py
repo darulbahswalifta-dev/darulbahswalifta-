@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import sqlite3
 import os
+import mimetypes
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "darul-bahs-wal-ifta-dev-secret-2026")
@@ -26,6 +27,52 @@ def upload_to_supabase(file_path, storage_path, content_type):
     if response.status_code not in (200, 201):
         raise RuntimeError(f"Supabase upload failed: {response.status_code} {response.text}")
     return f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{storage_path}"
+
+
+def public_storage_url(storage_path):
+    if not SUPABASE_URL or not SUPABASE_BUCKET:
+        return None
+    return f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{storage_path}"
+
+
+def media_content_type(filename, fallback="application/octet-stream"):
+    content_type, _ = mimetypes.guess_type(filename)
+    return content_type or fallback
+
+
+def serve_local_media(file_path, as_attachment=True):
+    """Serve a file stored under STORAGE_DIR using the path saved in media.file_path."""
+    if not file_path or file_path.startswith(("http://", "https://")):
+        return None
+    clean_path = file_path.replace("\\\\", "/").lstrip("/")
+    full_path = os.path.abspath(os.path.join(STORAGE_DIR, clean_path))
+    storage_root = os.path.abspath(STORAGE_DIR)
+    if os.path.commonpath([full_path, storage_root]) != storage_root:
+        return None
+    if not os.path.isfile(full_path):
+        return None
+    return send_from_directory(STORAGE_DIR, clean_path, as_attachment=as_attachment)
+
+
+def save_and_upload_media(file, folder, storage_prefix, fallback_type="application/octet-stream"):
+    """Save locally first, then upload to Supabase when configured.
+    Returns the public URL when Supabase upload succeeds; otherwise returns local path.
+    """
+    filename = secure_filename(file.filename or "")
+    if not filename:
+        raise ValueError("Invalid filename.")
+    local_folder = os.path.join(STORAGE_DIR, folder)
+    os.makedirs(local_folder, exist_ok=True)
+    local_path = os.path.join(local_folder, filename)
+    file.save(local_path)
+
+    storage_path = f"{storage_prefix}/{filename}"
+    uploaded_url = upload_to_supabase(
+        local_path,
+        storage_path,
+        media_content_type(filename, fallback_type),
+    )
+    return uploaded_url or storage_path, filename
 
 
 
@@ -217,11 +264,28 @@ def ask():
 
 @app.route("/download-pdf")
 def download_pdf():
-    filename = request.args.get("file")
-    allowed = ["His ah principle in Islam.pdf", "Ethics_of_Islam.pdf", "book1.pdf"]
-    if filename not in allowed:
+    filename = secure_filename(request.args.get("file", ""))
+    if not filename.lower().endswith(".pdf"):
         return "PDF ba a samu ba", 404
-    return send_from_directory(PDF_FOLDER, filename, as_attachment=True)
+
+    local_path = os.path.join(PDF_FOLDER, filename)
+    if os.path.isfile(local_path):
+        return send_from_directory(PDF_FOLDER, filename, as_attachment=True)
+
+    conn = get_db()
+    item = conn.execute(
+        "SELECT file_path FROM media WHERE file_type = 'PDF' AND file_path LIKE ?",
+        (f"%/{filename}",)
+    ).fetchone()
+    conn.close()
+    if item:
+        file_path = item["file_path"]
+        if file_path.startswith(("http://", "https://")):
+            return redirect(file_path)
+        response = serve_local_media(file_path, as_attachment=True)
+        if response:
+            return response
+    return "PDF ba a samu ba", 404
 @app.route("/study1")
 def study1():
     return render_template("study1.html")
@@ -237,10 +301,15 @@ def download_media(media_id):
     conn.close()
     if not item:
         return "Content not found", 404
+
     file_path = item["file_path"]
-    if file_path.startswith("http://") or file_path.startswith("https://"):
+    if file_path.startswith(("http://", "https://")):
         return redirect(file_path)
-    return send_from_directory(app.static_folder, file_path, as_attachment=True)
+
+    response = serve_local_media(file_path, as_attachment=True)
+    if response:
+        return response
+    return "File not found", 404
 
 @app.route("/studies")
 def studies():
@@ -509,16 +578,30 @@ def videos():
 
 @app.route("/download-audio/<path:filename>")
 def download_audio(filename):
-    if filename.startswith("http://") or filename.startswith("https://"):
+    if filename.startswith(("http://", "https://")):
         return redirect(filename)
-    if filename.startswith("audios/"):
-        return redirect(f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{filename}")
-    return redirect(f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/audios/{filename}")
+    storage_path = filename if filename.startswith("audios/") else f"audios/{filename}"
+    remote_url = public_storage_url(storage_path)
+    if remote_url:
+        return redirect(remote_url)
+    response = serve_local_media(storage_path, as_attachment=True)
+    if response:
+        return response
+    return "Audio not found", 404
 
 
 @app.route("/download-video/<path:filename>")
 def download_video(filename):
-    return send_from_directory("static/videos", filename, as_attachment=True)
+    if filename.startswith(("http://", "https://")):
+        return redirect(filename)
+    storage_path = filename if filename.startswith("videos/") else f"videos/{filename}"
+    remote_url = public_storage_url(storage_path)
+    if remote_url:
+        return redirect(remote_url)
+    response = serve_local_media(storage_path, as_attachment=True)
+    if response:
+        return response
+    return "Video not found", 404
 
 
 @app.route("/admin-add-pdf", methods=["GET", "POST"])
@@ -555,14 +638,22 @@ def admin_add_pdf():
         pdf_folder = PDF_FOLDER
         os.makedirs(pdf_folder, exist_ok=True)
 
-        file.save(os.path.join(pdf_folder, filename))
+        local_path = os.path.join(pdf_folder, filename)
+        file.save(local_path)
+        storage_path = f"pdfs/{filename}"
+        supabase_url = upload_to_supabase(
+            local_path,
+            storage_path,
+            "application/pdf"
+        )
+        saved_path = supabase_url or storage_path
 
         conn = get_db()
         category = request.form.get("category", "Books").strip()
 
         conn.execute(
             "INSERT INTO media (title, author, description, file_path, file_type, category) VALUES (?, ?, ?, ?, ?, ?)",
-            (title, author, description, f"pdfs/{filename}", "PDF", category)
+            (title, author, description, saved_path, "PDF", category)
         )
         conn.commit()
         conn.close()
@@ -603,17 +694,21 @@ def admin_add_audio():
         audio_folder = AUDIO_FOLDER
         os.makedirs(audio_folder, exist_ok=True)
 
-        file.save(os.path.join(audio_folder, filename))
-
-        supabase_url = upload_to_supabase(os.path.join(audio_folder, filename), f"audios/{filename}", "audio/mpeg")
-        if not supabase_url:
-            return render_template("admin_add_audio.html", error="Audio upload to Supabase failed. Please try again.")
-        saved_path = f"audios/{filename}"
+        local_path = os.path.join(audio_folder, filename)
+        file.save(local_path)
+        storage_path = f"audios/{filename}"
+        supabase_url = upload_to_supabase(
+            local_path,
+            storage_path,
+            media_content_type(filename, "audio/mpeg")
+        )
+        saved_path = supabase_url or storage_path
+        category = request.form.get("category", "Books").strip()
 
         conn = get_db()
         conn.execute(
-            "INSERT INTO media (title, author, description, file_path, file_type) VALUES (?, ?, ?, ?, ?)",
-            (title, author, description, saved_path, "Audio")
+            "INSERT INTO media (title, author, description, file_path, file_type, category) VALUES (?, ?, ?, ?, ?, ?)",
+            (title, author, description, saved_path, "Audio", category)
         )
         conn.commit()
         conn.close()
@@ -653,7 +748,24 @@ def admin_add_video():
         video_folder = VIDEO_FOLDER
         os.makedirs(video_folder, exist_ok=True)
 
-        file.save(os.path.join(video_folder, filename))
+        local_path = os.path.join(video_folder, filename)
+        file.save(local_path)
+        storage_path = f"videos/{filename}"
+        supabase_url = upload_to_supabase(
+            local_path,
+            storage_path,
+            media_content_type(filename, "video/mp4")
+        )
+        saved_path = supabase_url or storage_path
+        category = request.form.get("category", "Books").strip()
+
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO media (title, author, description, file_path, file_type, category) VALUES (?, ?, ?, ?, ?, ?)",
+            (title, author, description, saved_path, "Video", category)
+        )
+        conn.commit()
+        conn.close()
 
         return redirect(url_for("admin_dashboard"))
 
